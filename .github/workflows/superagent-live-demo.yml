@@ -1,0 +1,40 @@
+name: Superagent full live demo 5d5e01cf
+on:
+  pull_request:
+    types: [opened]
+permissions:
+  issues: write
+jobs:
+  signal:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'codex/superagent-live-demo-20261102-5d5e01cf'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Emit pre-authorized demo signals and one negative control
+        shell: bash
+        run: |
+          cat > "$RUNNER_TEMP/noise-request.txt" <<'DEMO_NOISE_REQUEST'
+          @tigertian Marker: demo-noise-20261102-5d5e01cf. 今天演示进行得很顺利，谢谢大家。这里只是闲聊，没有修改请求，不需要开展工作。
+          DEMO_NOISE_REQUEST
+          gh api --silent --method POST "repos/$GH_REPO/issues/6/comments" --field body=@"$RUNNER_TEMP/noise-request.txt"
+          cat > "$RUNNER_TEMP/ui-request.txt" <<'DEMO_UI_REQUEST'
+          @tigertian
+          
+          Marker: `demo-ui-20261102-5d5e01cf`. This exact UI-copy task was pre-authorized by the repository owner in the demo policy.
+          
+          Read index 6.html from main. Change only the visible computer-board heading from 聪明电脑 to 电脑对手. Preserve all HTML structure, CSS, JavaScript, game behavior, and other text. On a new agent/ branch, commit only index 6.html and create a DRAFT PR titled `demo: rename computer label 20261102-5d5e01cf`. Verify that replacing the one heading back yields the exact original file.
+          
+          The demo operator is preparing matched real Before/After screenshots in a separate evidence branch and will provide their paths, immutable URLs, and revisions directly in your worker Session. Implement and verify the requested copy change, then keep the PR draft and report progress if evidence is not available yet; do not report ready until both real captures are verified and embedded in the PR body. Do not invent screenshot evidence or add image files to the game branch. Report the final PR URL in this issue. Do not merge, and do not edit any other files.
+          DEMO_UI_REQUEST
+          gh api --silent --method POST "repos/$GH_REPO/issues/4/comments" --field body=@"$RUNNER_TEMP/ui-request.txt"
+          cat > "$RUNNER_TEMP/docs-request.txt" <<'DEMO_DOCS_REQUEST'
+          @tigertian
+          
+          Marker: `demo-docs-20261102-5d5e01cf`. This independent documentation task was pre-authorized by the repository owner in the demo policy.
+          
+          Read the actual index 6.html on main. Add only DEMO_AI_OVERVIEW.md, written in Chinese, with a short title and about five concise bullets explaining the existing computer opponent: aiChoose's placement search, evaluate's scoring, how the game loop applies a chosen move, and limitations of this heuristic. Verify every technical claim against the actual code and cite existing function names. Do not invent behavior, dependencies, or external AI calls. Do not modify HTML, CSS, JavaScript, game logic, or other files. Use a new agent/ branch, commit this one documentation file, and create a separate DRAFT PR titled `docs: explain game AI 20261102-5d5e01cf`. Verify the diff and reply with its link in this issue. Do not merge.
+          DEMO_DOCS_REQUEST
+          gh api --silent --method POST "repos/$GH_REPO/issues/5/comments" --field body=@"$RUNNER_TEMP/docs-request.txt"
