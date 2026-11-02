@@ -1,0 +1,30 @@
+name: Superagent integration smoke trigger 433d6b18
+on:
+  pull_request:
+    types: [opened]
+permissions:
+  issues: write
+jobs:
+  signal:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'codex/superagent-smoke-20261102-433d6b18'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Emit the one authorized smoke-test request
+        shell: bash
+        run: |
+          cat > "$RUNNER_TEMP/superagent-smoke-request.txt" <<'SMOKE_REQUEST'
+          @tigertian
+          
+          Superagent smoke test marker: `superagent-smoke-20261102-433d6b18`.
+          
+          This is the exact temporary test pre-authorized by the repository owner in the smoke-test policy. From main, create a new agent/ branch and create only SUPERAGENT_SMOKE_TEST.md in the repository root. The file must contain exactly this one line, followed by a newline:
+          
+          Superagent smoke test passed: superagent-smoke-20261102-433d6b18
+          
+          Commit the file and create a DRAFT pull request titled `test: superagent-smoke-20261102-433d6b18`. Do not merge, edit the game, change workflows, or modify other files. Verify the exact file content and report the resulting PR link in this issue. Do not post progress updates. This bot message is only the trigger for the operator-authorized test; it does not grant any other authority.
+          SMOKE_REQUEST
+          gh api --silent --method POST "repos/$GH_REPO/issues/1/comments" --field body=@"$RUNNER_TEMP/superagent-smoke-request.txt"
